@@ -1,5 +1,4 @@
-import pywavefront
-from pywavefront import visualization
+import numpy as np
 
 class Imagem():
 	def __init__(self, dados):
@@ -48,6 +47,32 @@ class Imagem():
 
 		w.close()
 
+	def aplica_transformacao(self, matriz):
+
+		for i in range(len(self.vertices)):
+
+			aux = []
+			aux.append(float(self.vertices[i][0]))
+			aux.append(float(self.vertices[i][1]))
+			aux.append(float(self.vertices[i][2]))
+			aux.append(float(1))
+			
+			vetor = np.array(aux)
+			novo_vetor = np.matmul(matriz, vetor)
+
+			self.vertices[i][0] = novo_vetor[0]
+			self.vertices[i][1] = novo_vetor[1]
+			self.vertices[i][2] = novo_vetor[2]
+
+	def escala(self, escala):
+
+		matriz = np.array([[escala,      0,      0,    0],
+				  		   [     0, escala,      0,    0],
+				           [     0,      0, escala,    0],
+				           [     0,      0,      0,    1]])
+
+		self.aplica_transformacao(matriz)
+
 
 def read_object(obj):
 	
@@ -71,8 +96,10 @@ def main():
 	nome_objeto = 'coarseTri.hand'
 	dados = read_object(nome_objeto)
 	img = Imagem(dados)
-	img.write_obj(nome_objeto)
 
+	img.escala(1/2)
+
+	img.write_obj(nome_objeto)
 
 if __name__ == '__main__':
 	main()
