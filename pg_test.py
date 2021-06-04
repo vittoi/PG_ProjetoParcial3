@@ -80,7 +80,38 @@ class Imagem():
 				               [     0,      0,      0,    1]])
 
     self.aplica_transformacao(matriz)
-		
+  
+  def rotacaoZ(self, angulo):
+    rad = np.pi * (angulo/180)
+    matriz = np.array([[np.cos(rad), -np.sin(rad),           0,       0],
+				  		         [np.sin(rad),  np.cos(rad),           0,       0],
+				               [          0,            0,           1,       0],
+				               [          0,            0,           0,       1]])
+
+    self.aplica_transformacao(matriz)
+
+  def rotacaoX(self, angulo):
+
+    rad = np.pi * (angulo/180)
+
+    matriz = np.array([[           1,            0,            0,       0],
+				  		         [           0,  np.cos(rad), -np.sin(rad),       0],
+				               [           0,  np.sin(rad),  np.cos(rad),       0],
+				               [           0,            0,            0,       1]])
+
+    self.aplica_transformacao(matriz)
+    
+  def rotacaoY(self, angulo):
+
+    rad = np.pi * (angulo/180)
+
+    matriz = np.array([[  np.cos(rad),           0,  np.sin(rad),       0],
+				  		         [            0,           1,            0,       0],
+				               [ -np.sin(rad),           0,  np.cos(rad),       0],
+				               [            0,           0,            0,       1]])
+
+    self.aplica_transformacao(matriz)
+
 def read_object(obj):
 	
   data = []
@@ -102,9 +133,8 @@ def main():
   nome_objeto = 'coarseTri.hand'
   dados = read_object(nome_objeto)
   img = Imagem(dados)
-  #print('aaa')
-  #img.escala(2)
-  img.translacao(500, 0, -20)
+  img.rotacaoX(180)
+  img.rotacaoY(180)
   img.write_obj(nome_objeto) 
 
 if __name__ == '__main__':
