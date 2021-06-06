@@ -99,11 +99,11 @@ class Imagem():
       self.vertices[i][1] = novo_vetor[1]
       self.vertices[i][2] = novo_vetor[2]
 
-  def escala(self, escala):
+  def escala(self, escalaX, escalaY, escalaZ):
 
-    matriz = np.array([[escala,      0,      0,    0],
-				  		         [     0, escala,      0,    0],
-				               [     0,      0, escala,    0],
+    matriz = np.array([[escalaX,      0,      0,    0],
+				  		         [     0, escalaY,      0,    0],
+				               [     0,      0, escalaZ,    0],
 				               [     0,      0,      0,    1]])
 
     return matriz
@@ -200,21 +200,21 @@ def read_object(obj):
 
 def main():
 
-  nome_objeto = 'coarseTri.hand'
+  nome_objeto = 'coarseTri.cube'
   mao = read_object(nome_objeto)
   botijo = read_object('coarseTri.botijo')
 
   img = Imagem(mao)
   img2 = Imagem(botijo)
   img3 = Imagem(mao)
-  transformacoesImg = [img.escala(2), img.rotacaoX(180), img.rotacaoY(180), img.translacao(-200,20,400)]
-  transformacoesImg3 = [img3.translacao(-100,10,200)]
+  transformacoesImg = [img.escala(2000, 0.2, 2000), img.translacao(-0.5,0,-0.5)]#chao 10X10
+  transformacoesImg2 = [img3.translacao(0,2,0)]#botijo encima do chao
   
   img.aplica_transformacao(transformacoesImg)
-  img3.aplica_transformacao(transformacoesImg3)
+  #img2.aplica_transformacao(transformacoesImg2)
 
   cena = scene() 
-  cena.insereObjetos([img, img2, img3])
+  cena.insereObjetos([img, img2])
   cena.writeScene("cena_Maos") 
 
 if __name__ == '__main__':
