@@ -34,7 +34,7 @@ class Imagem():
         aux.append(float(dados[i][2]))
         aux.append(float(dados[i][3]))
         self.vertices.append(aux)
-				
+        
       if(dados[i][0] == 'f'):
         aux.append(int(dados[i][1]))
         aux.append(int(dados[i][2]))
@@ -91,7 +91,7 @@ class Imagem():
       aux.append(float(self.vertices[i][1]))
       aux.append(float(self.vertices[i][2]))
       aux.append(float(1))
-			
+      
       vetor = np.array(aux)
       novo_vetor = np.matmul(transformacao, vetor)
 
@@ -106,23 +106,24 @@ class Imagem():
 				               [     0,      0, escalaZ,    0],
 				               [     0,      0,      0,    1]])
 
+
     return matriz
 
   def translacao(self, dx, dy, dz):
 
     matriz = np.array([[     1,      0,      0,   dx],
-				  		         [     0,      1,      0,   dy],
-				               [     0,      0,      1,   dz],
-				               [     0,      0,      0,    1]])
+                       [     0,      1,      0,   dy],
+                       [     0,      0,      1,   dz],
+                       [     0,      0,      0,    1]])
 
     return matriz
   
   def rotacaoZ(self, angulo):
     rad = np.pi * (angulo/180)
     matriz = np.array([[np.cos(rad), -np.sin(rad),           0,       0],
-				  		         [np.sin(rad),  np.cos(rad),           0,       0],
-				               [          0,            0,           1,       0],
-				               [          0,            0,           0,       1]])
+                       [np.sin(rad),  np.cos(rad),           0,       0],
+                       [          0,            0,           1,       0],
+                       [          0,            0,           0,       1]])
 
     return matriz
 
@@ -131,9 +132,9 @@ class Imagem():
     rad = np.pi * (angulo/180)
 
     matriz = np.array([[           1,            0,            0,       0],
-				  		         [           0,  np.cos(rad), -np.sin(rad),       0],
-				               [           0,  np.sin(rad),  np.cos(rad),       0],
-				               [           0,            0,            0,       1]])
+                       [           0,  np.cos(rad), -np.sin(rad),       0],
+                       [           0,  np.sin(rad),  np.cos(rad),       0],
+                       [           0,            0,            0,       1]])
 
     return matriz
     
@@ -142,9 +143,9 @@ class Imagem():
     rad = np.pi * (angulo/180)
 
     matriz = np.array([[  np.cos(rad),           0,  np.sin(rad),       0],
-				  		         [            0,           1,            0,       0],
-				               [ -np.sin(rad),           0,  np.cos(rad),       0],
-				               [            0,           0,            0,       1]])
+                       [            0,           1,            0,       0],
+                       [ -np.sin(rad),           0,  np.cos(rad),       0],
+                       [            0,           0,            0,       1]])
 
     return matriz
 
@@ -184,6 +185,7 @@ class scene():
     w.close()
 
 def read_object(obj):
+
   data = []
 
   with open('{}.obj'.format(obj), 'r') as r:
@@ -216,6 +218,7 @@ def main():
   cena = scene() 
   cena.insereObjetos([img, img2])
   cena.writeScene("cena_Maos") 
+
 
 if __name__ == '__main__':
   main()
