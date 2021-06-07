@@ -53,6 +53,18 @@ class Imagem():
   def getFaces(self, x, y):
     return self.faces[x][y]
 
+  def getFacesLen(self):
+    return len(self.faces)
+
+  def getVerticesLen(self):
+    return len(self.vertices)
+
+  def getFacesLen(self):
+    return len(self.faces)
+
+  def setFaces(self, x, y, value):
+    self.faces[x][y] = value
+
   def write_obj(self, obj):
     with open('{}_NOVO.obj'.format(obj), 'w') as w:
 
@@ -87,12 +99,13 @@ class Imagem():
       self.vertices[i][1] = novo_vetor[1]
       self.vertices[i][2] = novo_vetor[2]
 
-  def escala(self, escala):
+  def escala(self, escalaX, escalaY, escalaZ):
 
-    matriz = np.array([[escala,      0,      0,    0],
-                       [     0, escala,      0,    0],
-                       [     0,      0, escala,    0],
-                       [     0,      0,      0,    1]])
+    matriz = np.array([[escalaX,      0,      0,    0],
+				  		         [     0, escalaY,      0,    0],
+				               [     0,      0, escalaZ,    0],
+				               [     0,      0,      0,    1]])
+
 
     return matriz
 
@@ -136,8 +149,43 @@ class Imagem():
 
     return matriz
 
+class scene():
+  def __init__(self):
+    self.objs = []
+    self.vObjn =0
+
+  def insereObjetos(self, objs):
+    
+    for i in range(0, len(objs)):
+      obj = objs[i]
+      
+      for j in range(0, obj.getFacesLen()):
+        faceX = obj.getFaces(j,0)
+        faceY = obj.getFaces(j,1)
+        faceZ = obj.getFaces(j,2)
+        
+        obj.setFaces(j,0, faceX+self.vObjn)
+        obj.setFaces(j,1, faceY+self.vObjn)
+        obj.setFaces(j,2, faceZ+self.vObjn)
+
+      self.vObjn += obj.getVerticesLen()
+    self.objs.extend(objs)
+
+  def writeScene(self, name):
+    with open('{}_NOVO.obj'.format(name), 'w') as w:
+      for obj in self.objs:    
+
+        for i in range(obj.getVerticesLen()):                
+          w.write('v {} {} {}'.format(obj.getVertices(i, 0), obj.getVertices(i, 1), obj.getVertices(i, 2)))
+          w.write('\n')
+
+        for i in range(obj.getFacesLen()):                
+          w.write('f {} {} {}'.format(obj.getFaces(i, 0), obj.getFaces(i, 1), obj.getFaces(i, 2)))
+          w.write('\n')
+    w.close()
+
 def read_object(obj):
-  
+
   data = []
 
   with open('{}.obj'.format(obj), 'r') as r:
@@ -154,14 +202,23 @@ def read_object(obj):
 
 def main():
 
-  nome_objeto = 'coarseTri.hand'
-  dados = read_object(nome_objeto)
-  img = Imagem(dados)
-  transformacoes = [img.escala(2), img.rotacaoX(180), img.rotacaoY(180), img.translacao(-200,20,400)]
+  nome_objeto = 'coarseTri.cube'
+  mao = read_object(nome_objeto)
+  botijo = read_object('coarseTri.botijo')
+
+  img = Imagem(mao)
+  img2 = Imagem(botijo)
+  img3 = Imagem(mao)
+  transformacoesImg = [img.escala(2000, 0.2, 2000), img.translacao(-0.5,0,-0.5)]#chao 10X10
+  transformacoesImg2 = [img3.translacao(0,2,0)]#botijo encima do chao
   
-  img.aplica_transformacao(transformacoes)
-  
-  img.write_obj(nome_objeto) 
+  img.aplica_transformacao(transformacoesImg)
+  #img2.aplica_transformacao(transformacoesImg2)
+
+  cena = scene() 
+  cena.insereObjetos([img, img2])
+  cena.writeScene("cena_Maos") 
+
 
 if __name__ == '__main__':
   main()
