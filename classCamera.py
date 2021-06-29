@@ -38,14 +38,13 @@ class Camera():
 
     #Multiplicação das matrizes R e T
     self.M = np.matmul(R, T)
-
-
     
   def posiciona_imagem(self, cena, n, f, a, fov):
     #A projeção foi definida pelos parâmetros: ângulo de visão FOV (field of view), razão de aspecto (a), e planos de corte near e far
 
     radFov = np.pi * ((fov/2)/180) #Converte o Fov para radiano
     tan = np.tan(radFov) #Calcula o valor da tangente 
+    print("Aguarde...")
 
     self.f = f #far
     self.n = n #near
@@ -62,30 +61,25 @@ class Camera():
               [        0,             0,       a33,        a34],
               [        0,             0,        -1,          0]])
 
-    self.M = np.matmul(self.M, Mproj) #aplica a projecao
-
     #for para cada objeto da cena
     for i in range(cena.getQtdObjetos()):
 
+      #Recebe cada objeto cena
       img = cena.getObjeto(i)
 
-      #realiza esses passos para todos os vertices do objeto
-      for j in range(img.getQtdVertices()):
+      #Calcula o vetor normal de cada face
+      img.calcula_normais()
 
-        aux = []
-        aux.append(img.getVertices(j, 0)) #x
-        aux.append(img.getVertices(j, 1)) #y
-        aux.append(img.getVertices(j, 2)) #z
-        aux.append(float(1)) #w
+      #Calcula a intensidade da luz de acordo com a normal e o vetor da luz
+      img.calcula_intensidade(cena.vetor_luz)
 
-        vetor = np.array(aux)
-       
-        novo_vetor = np.matmul(self.M, vetor) #Aplica a matriz de camera + projeção no vetor do objeto 
+      #Calcula a intensidade de luz de cada vertice
+      img.calcula_intensidade_vertice()
 
-        #seta os vertices na classe imagem
-        img.setVertice(j, 0, novo_vetor[0]) #x
-        img.setVertice(j, 1, novo_vetor[1]) #y
-        img.setVertice(j, 2, novo_vetor[2]) #z
+      img.aplica_transformacao([self.M, Mproj])
 
-      img.normaliza() #Aplica a normalização na imagem
+      #Ordena as faces para a aplicacao do algoritmo do pintor
+      img.ordena_faces()
 
+
+    cena.normaliza() #Aplica a normalização na cena

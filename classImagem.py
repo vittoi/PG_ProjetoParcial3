@@ -1,10 +1,15 @@
 import numpy as np
+from numpy import linalg as LA
 
 class Imagem():
   def __init__(self, dados):
 
     self.vertices = [] #vetor de vertices
     self.faces = [] #vetor de faces
+    self.normal_face = []
+    self.intensidade_face = []
+    self.intensidade_vertice = []
+    self.faces_por_vertice = []
 
     #inicializa os atributos de menor e maior X, Y e Z
     self.menorX = float(dados[0][1])
@@ -34,16 +39,17 @@ class Imagem():
         aux.append(int(dados[i][3]))
         self.faces.append(aux)
 
+    self.normaliza()
+
   #Funcao para normalizar os vertices
   def normaliza(self):
 
-    self.menorX = 0
-    self.maiorX = 0
-    self.menorY = 0
-    self.maiorY = 0
-    self.menorZ = 0
-    self.maiorZ = 0
-
+    self.menorX = 4000
+    self.maiorX = -4000
+    self.menorY = 4000
+    self.maiorY = -4000
+    self.menorZ = 4000
+    self.maiorZ = -4000
 
     for i in range(len(self.vertices)):
     
@@ -83,19 +89,17 @@ class Imagem():
     self.aplica_transformacao([self.escala(2/distanciaMax, 2/distanciaMax, 2/distanciaMax), self.translacao(-mediaX, -mediaY, -mediaZ)])
 
 
-
-
   #metodos get e set da imagem
   def getQtdVertices(self):
     return len(self.vertices)
 
-  def getVertices(self, x):
+  def getVertice(self, x):
     return self.vertices[x]
 
   def getVertices(self, x, y):
     return self.vertices[x][y]
     
-  def getFaces(self, x):
+  def getFace(self, x):
     return self.faces[x]
 
   def getFaces(self, x, y):
@@ -203,6 +207,89 @@ class Imagem():
                        [            0,           0,            0,       1]])
 
     return matriz
+
+  def ordena_faces(self):
+
+    #ordena baseado na média do eixo Z de cada vértice da face
+    self.faces.sort(key=self.distancia_z)
+
+  def distancia_z(self, img):
+    return (self.getVertices(img[0]-1, 2) + self.getVertices(img[1]-1, 2) + self.getVertices(img[2]-1, 2))/3 
+
+
+  def calcula_normais(self):
+
+    self.normal_face = []
+
+    #Para cada face com vertices A, B e C. Calcula os vetores AB e AC, e faz o produto vetorial entre eles para achar a normal
+
+    for vertices in self.faces:
+
+      v1 = self.getVertice(vertices[0]-1)
+      v2 = self.getVertice(vertices[1]-1)
+      v3 = self.getVertice(vertices[2]-1)
+
+      vetor1 = [v1[0]-v2[0], v1[1]-v2[1], v1[2]-v2[2]]
+      norm = LA.norm(vetor1)
+      vetor1 = vetor1/norm
+
+      vetor2 = [v2[0]-v3[0], v2[1]-v3[1], v2[2]-v3[2]]
+      norm = LA.norm(vetor2)
+      vetor2 = vetor2/norm
+
+      normal = np.cross(vetor1, vetor2)
+
+      self.normal_face.append(normal)
+
+  def calcula_intensidade(self, luz):
+
+    self.intensidade_face = []   
+
+    #calcula a intensidade de cada face a partir da sua normal e do vetor de luz definido anteriormente 
+
+    norm = LA.norm(luz)
+    luz = luz/norm
+
+    for normais in self.normal_face:
+
+      norm = LA.norm(normais)
+      normais = normais/norm
+
+      produto = luz[0]*normais[0] + luz[1]*normais[1] + luz[2]*normais[2] #L * N
+
+      self.intensidade_face.append(produto)
+
+  def calcula_intensidade_vertice(self):
+
+    #A intensidade de cada vétice é calculada a partir da média da intensidade de todas as faces o qual ela faz parte
+
+    self.intensidade_vertice = [] 
+    self.faces_por_vertice = []
+
+    for i in range(self.getQtdVertices()):
+      self.faces_por_vertice.append([])
+
+    for i in range(self.getFacesLen()):
+
+      face_atual = self.getFace(i)
+
+      self.faces_por_vertice[face_atual[0]-1].append(i) 
+      self.faces_por_vertice[face_atual[1]-1].append(i) 
+      self.faces_por_vertice[face_atual[2]-1].append(i) 
+
+    for i in range(len(self.faces_por_vertice)):
+      soma = 0
+      tamanho = len(self.faces_por_vertice[i])
+
+      for j in range(tamanho):
+        soma = soma + self.intensidade_face[self.faces_por_vertice[i][j]]
+
+      media = soma/tamanho
+
+      self.intensidade_vertice.append(media)
+
+
+
 
 #-------------------------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------------------------#

@@ -29,40 +29,47 @@ def read_object(obj):
 def main():
 
   #Le o arquivo .obj e o armazena suas informacoes em uma matriz
-  nome_objeto = 'coarseTri.hand'
-  mao = read_object(nome_objeto)
-
   #Atribui a matriz recebida a uma imagem, que armazenara os dados sobre vertices e faces da imagem
-  img = Imagem.Imagem(mao)
+  botijo = Imagem.Imagem(read_object('coarseTri.botijo'))
+  mao = Imagem.Imagem(read_object('coarseTri.hand'))
+
+  #inicializa um vetor para a luz
+  luz = [-1, -1, -2]
 
   #inicializa uma cena
-  cena = Cena.Cena() 
+  cena = Cena.Cena(luz) 
 
-  #Coloca quantas imagens for necessario na cena, nessa fase do trabalho iremos trabalhar apenas com uma
-  cena.insereObjetos([img])
+  #Coloca quantas imagens for necessario na cena 
+  cena.insereObjetos([botijo, mao])
 
   #Exemplo de algumas transformacoes possiveis da imagem
-  img.aplica_transformacao([img.translacao(3, 0, 0), img.rotacaoZ(30)])
-  
-  #Posicao da camera
-  e_camera = [3 , 3 , 3]
-  #Direcao que a camera esta apontando
+  botijo.aplica_transformacao([botijo.translacao(-1, 0, 3), botijo.rotacaoY(30)])
+  mao.aplica_transformacao([mao.escala(2, 2, 2), mao.rotacaoY(90)])
+
+  #retorna a cena em um arquivo de saida
+  cena.writeScene("Cena_mao_vaso") 
+
+  #Define os atributos da camera
+  e_camera = [1.5 , 0.75 , 1.5]
   g_camera = [0, 0, 0]
- 
-  t_camera = [0 , -1 , 1]
+  t_camera = [0 , 0 , 1]
 
   #Cria a cena da camera de acordo com os parametros passados
   camera = Camera.Camera(e_camera, g_camera, t_camera)
-  #Coloca a cena criada anteriormente nas coordenadas da camera, aplica a projeçao e normaliza a imagem
+
+  # Coloca a cena criada anteriormente nas coordenadas da camera, aplica a projeçao e normaliza a imagem
+  # Durante essa etapa aplicamos quase todos os passos da entrega 4
   camera.posiciona_imagem(cena, 1, 10, 1, 80)
 
-  #retorna a cena em um arquivo de saida
-  cena.writeScene("cena_Maos") 
+  #Aplica a rasterizacao e exibe a cena em uma tela virtual, agora com luz :)
+  #Foi utilizado o algoritmo de Gouraud para a iluminação
+  #Como estamos trabalhando com figuras complesxas, a imagem possui alguns "buracos" 
 
-  #Aplica a raterizacao e exibe em uma tela virtual
+  #PS. também pode aparecer uma mensagem de divisao por zero, mas ela não ira afetar o codigo
+
   app = wx.App(0)
-  frame = wx.Frame(None, -1, nome_objeto)
-  canvas = Canvas.Canvas(frame, img)
+  frame = wx.Frame(None, -1, 'Teste')
+  canvas = Canvas.Canvas(frame, cena)
   frame.Show()
   app.MainLoop()
 
